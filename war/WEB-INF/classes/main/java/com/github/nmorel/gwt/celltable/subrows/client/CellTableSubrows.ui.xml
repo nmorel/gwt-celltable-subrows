@@ -1,0 +1,24 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui"
+  xmlns:c="urn:import:com.google.gwt.user.cellview.client">
+
+  <ui:style>
+    
+  </ui:style>
+
+  <g:DockLayoutPanel unit="PX">
+    <g:west size="15">
+      <g:HTMLPanel></g:HTMLPanel>
+    </g:west>
+    <g:north size="80">
+      <g:HTMLPanel>
+        <h2 ui:field="titreTable">CellTable Editable Subrows Example</h2>
+        <p>Click on the +/- to show/hide subrows. The date and text are editable.</p>
+      </g:HTMLPanel>
+    </g:north>
+    <g:center>
+      <c:CellTable ui:field="table" />
+    </g:center>
+  </g:DockLayoutPanel>
+
+</ui:UiBinder>
