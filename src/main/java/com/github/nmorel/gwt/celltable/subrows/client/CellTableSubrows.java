@@ -125,7 +125,7 @@ public class CellTableSubrows
 
     private void createNumberColumn()
     {
-        Column<Parent, ?> column = new Column<Parent, Number>( tableBuilder.getNumberCell() ) {
+        Column<Parent, ?> column = new Column<Parent, Number>( tableBuilder.createNumberCell() ) {
 
             @Override
             public Number getValue( Parent object )
@@ -140,7 +140,7 @@ public class CellTableSubrows
 
     private void createDateColumn()
     {
-        Column<Parent, Date> column = new Column<Parent, Date>( tableBuilder.getDateCell() ) {
+        Column<Parent, Date> column = new Column<Parent, Date>( tableBuilder.createDateCell() ) {
 
             @Override
             public Date getValue( Parent object )
@@ -163,7 +163,7 @@ public class CellTableSubrows
 
     private void createTextColumn()
     {
-        Column<Parent, String> column = new Column<Parent, String>( tableBuilder.getTextCell() ) {
+        Column<Parent, String> column = new Column<Parent, String>( tableBuilder.createTextCell() ) {
 
             @Override
             public String getValue( Parent object )

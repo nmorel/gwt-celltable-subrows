@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.google.gwt.user.cellview.client;
+package com.github.nmorel.gwt.celltable.subrows.client.celltable;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.dom.builder.shared.DivBuilder;
@@ -21,9 +21,10 @@ import com.google.gwt.dom.builder.shared.TableCellBuilder;
 import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.Style.OutlineStyle;
 import com.google.gwt.user.cellview.client.AbstractCellTable;
+import com.google.gwt.user.cellview.client.AbstractCellTable.Style;
+import com.google.gwt.user.cellview.client.AbstractCellTableBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowStyles;
-import com.google.gwt.user.cellview.client.AbstractCellTable.Style;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.user.client.ui.HasVerticalAlignment.VerticalAlignmentConstant;
 import com.google.gwt.view.client.SelectionModel;
@@ -33,7 +34,7 @@ import com.google.gwt.view.client.SelectionModel;
  * 
  * @param <T> the data type of the rows.
  */
-public class MyDefaultCellTableBuilder<T> extends MyAbstractCellTableBuilder<T> {
+public class MyDefaultCellTableBuilder<T> extends AbstractCellTableBuilder<T> {
 
   protected final String evenRowStyle;
   protected final String oddRowStyle;

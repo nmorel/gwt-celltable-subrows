@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.logging.Logger;
 
 import com.github.nmorel.gwt.celltable.subrows.client.celltable.ChildCellColumn;
+import com.github.nmorel.gwt.celltable.subrows.client.celltable.ChildGetter;
+import com.github.nmorel.gwt.celltable.subrows.client.celltable.MyDefaultCellTableBuilder;
 import com.github.nmorel.gwt.celltable.subrows.client.celltable.ValueGetter;
 import com.github.nmorel.gwt.celltable.subrows.client.model.Child;
 import com.github.nmorel.gwt.celltable.subrows.client.model.Parent;
@@ -21,7 +23,6 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.AbstractCellTable;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.MyDefaultCellTableBuilder;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.user.client.ui.HasVerticalAlignment.VerticalAlignmentConstant;
 import com.google.gwt.view.client.SelectionModel;
@@ -30,6 +31,15 @@ public class SubrowTableBuilder
     extends MyDefaultCellTableBuilder<Parent>
 {
     private static Logger logger = Logger.getLogger( "" );
+
+    private ChildGetter<Parent, Child> childGetter = new ChildGetter<Parent, Child>() {
+
+        @Override
+        public Child getChild( Parent parent, int index )
+        {
+            return parent.getChildren().get( index );
+        }
+    };
 
     private ValueGetter<Child, Date> dateValueGetter = new ValueGetter<Child, Date>() {
         @Override
@@ -47,12 +57,6 @@ public class SubrowTableBuilder
         }
     };
 
-    private NumberCell numberCell = new NumberCell();
-
-    private DatePickerCell dateCell = new DatePickerCell( DateTimeFormat.getFormat( PredefinedFormat.DATE_SHORT ) );
-
-    private EditTextCell textCell = new EditTextCell();
-
     public SubrowTableBuilder( AbstractCellTable<Parent> cellTable )
     {
         super( cellTable );
@@ -65,14 +69,14 @@ public class SubrowTableBuilder
         buildChildrenRow( rowValue, absRowIndex );
     }
 
-    private void buildChildrenRow( Parent rowValue, int absRowIndex )
+    private void buildChildrenRow( Parent parent, int absRowIndex )
     {
-        if ( rowValue.isDeployed() )
+        if ( parent.isDeployed() )
         {
             // Calculate the row styles.
             SelectionModel<? super Parent> selectionModel = cellTable.getSelectionModel();
             boolean isSelected =
-                ( selectionModel == null || rowValue == null ) ? false : selectionModel.isSelected( rowValue );
+                ( selectionModel == null || parent == null ) ? false : selectionModel.isSelected( parent );
             boolean isEven = absRowIndex % 2 == 0;
             StringBuilder trClasses = new StringBuilder( isEven ? evenRowStyle : oddRowStyle );
             if ( isSelected )
@@ -80,14 +84,16 @@ public class SubrowTableBuilder
                 trClasses.append( selectedRowStyle );
             }
 
-            for ( Child child : rowValue.getChildren() )
+            int i = 0;
+            for ( Child child : parent.getChildren() )
             {
-                buildChildRow( child, isEven, isSelected, trClasses );
+                buildChildRow( parent, i++, child, isEven, isSelected, trClasses );
             }
         }
     }
 
-    protected void buildChildRow( Child rowValue, boolean isEven, boolean isSelected, StringBuilder trClasses )
+    protected void buildChildRow( Parent parent, int subrowIndex, Child child, boolean isEven, boolean isSelected,
+                                  StringBuilder trClasses )
     {
         // only way to get subindex without modifying the abstractcellbuilder
         Context baseContext = createContext( 0 );
@@ -111,12 +117,12 @@ public class SubrowTableBuilder
         /*
          * number column
          */
-        Context context = new Context( baseContext.getIndex(), 1, rowValue, baseContext.getSubIndex() );
+        Context context = new Context( baseContext.getIndex(), 1, child, baseContext.getSubIndex() );
         td = initChildTd( tr, evenOrOddStyle, 1, isSelected );
         div = td.startDiv();
         div.style().outlineStyle( OutlineStyle.NONE ).endStyle();
         SafeHtmlBuilder sb = new SafeHtmlBuilder();
-        getNumberCell().render( context, rowValue.getNumber(), sb );
+        createNumberCell().render( context, child.getNumber(), sb );
         div.html( sb.toSafeHtml() );
         div.endDiv();
         td.endTD();
@@ -124,12 +130,12 @@ public class SubrowTableBuilder
         /*
          * date column
          */
-        context = new Context( baseContext.getIndex(), 2, rowValue, baseContext.getSubIndex() );
+        context = new Context( baseContext.getIndex(), 2, child, baseContext.getSubIndex() );
         td = initChildTd( tr, evenOrOddStyle, 2, isSelected );
         div = td.startDiv();
         div.style().outlineStyle( OutlineStyle.NONE ).endStyle();
         ChildCellColumn<Parent, Child, Date> dateColumn =
-            new ChildCellColumn<Parent, Child, Date>( rowValue, getDateCell(), dateValueGetter,
+            new ChildCellColumn<Parent, Child, Date>( subrowIndex, childGetter, createDateCell(), dateValueGetter,
                 new FieldUpdater<Child, Date>() {
                     @Override
                     public void update( int index, Child object, Date value )
@@ -138,19 +144,19 @@ public class SubrowTableBuilder
                         logger.info( "Updated child date : " + object );
                     }
                 } );
-        renderChildCell( div, context, dateColumn, dateColumn.getValueGetter().getValue( rowValue ) );
+        renderCell( div, context, dateColumn, parent );
         div.endDiv();
         td.endTD();
 
         /*
          * text column
          */
-        context = new Context( baseContext.getIndex(), 3, rowValue, baseContext.getSubIndex() );
+        context = new Context( baseContext.getIndex(), 3, child, baseContext.getSubIndex() );
         td = initChildTd( tr, evenOrOddStyle, 3, isSelected );
         div = td.startDiv();
         div.style().outlineStyle( OutlineStyle.NONE ).endStyle();
         ChildCellColumn<Parent, Child, String> textColumn =
-            new ChildCellColumn<Parent, Child, String>( rowValue, getTextCell(), textValueGetter,
+            new ChildCellColumn<Parent, Child, String>( subrowIndex, childGetter, createTextCell(), textValueGetter,
                 new FieldUpdater<Child, String>() {
                     @Override
                     public void update( int index, Child object, String value )
@@ -159,7 +165,7 @@ public class SubrowTableBuilder
                         logger.info( "Updated child text : " + object );
                     }
                 } );
-        renderChildCell( div, context, textColumn, textColumn.getValueGetter().getValue( rowValue ) );
+        renderCell( div, context, textColumn, parent );
         div.endDiv();
         td.endTD();
 
@@ -199,19 +205,24 @@ public class SubrowTableBuilder
         return td;
     }
 
-    public NumberCell getNumberCell()
+    /*
+     * The cells are not singleton because the AbstractEditableCell has a map containing view data and the key is the
+     * same for main row and sub row : the Parent.
+     */
+
+    public NumberCell createNumberCell()
     {
-        return numberCell;
+        return new NumberCell();
     }
 
-    public DatePickerCell getDateCell()
+    public DatePickerCell createDateCell()
     {
-        return dateCell;
+        return new DatePickerCell( DateTimeFormat.getFormat( PredefinedFormat.DATE_SHORT ) );
     }
 
-    public EditTextCell getTextCell()
+    public EditTextCell createTextCell()
     {
-        return textCell;
+        return new EditTextCell();
     }
 
 }

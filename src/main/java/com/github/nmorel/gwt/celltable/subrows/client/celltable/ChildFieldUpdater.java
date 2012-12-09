@@ -4,7 +4,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 
 /**
  * Field updater pour les cellules filles.
- *
+ * 
  * @author NICOLASM
  * @param <P> Type de l'objet parent
  * @param <C> Type de l'objet fils
@@ -13,19 +13,22 @@ import com.google.gwt.cell.client.FieldUpdater;
 public class ChildFieldUpdater<P, C, V>
     implements FieldUpdater<P, V>
 {
-    private C child;
+    private int childIndex;
+
+    private ChildGetter<P, C> childGetter;
 
     private FieldUpdater<C, V> fieldUpdater;
 
-    public ChildFieldUpdater( C child, FieldUpdater<C, V> fieldUpdater )
+    public ChildFieldUpdater( int childIndex, ChildGetter<P, C> childGetter, FieldUpdater<C, V> fieldUpdater )
     {
-        this.child = child;
+        this.childIndex = childIndex;
+        this.childGetter = childGetter;
         this.fieldUpdater = fieldUpdater;
     }
 
     @Override
     public void update( int index, P parent, V value )
     {
-        fieldUpdater.update( index, child, value );
+        fieldUpdater.update( index, childGetter.getChild( parent, childIndex ), value );
     }
 }

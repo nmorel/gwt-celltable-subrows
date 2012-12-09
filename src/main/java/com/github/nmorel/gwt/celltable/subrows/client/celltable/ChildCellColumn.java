@@ -6,7 +6,7 @@ import com.google.gwt.cell.client.HasCell;
 
 /**
  * HasCell pour une cellule fille permettant d'obtenir les evenements sur cette cellule
- *
+ * 
  * @author NICOLASM
  * @param <P> Type de l'objet parent
  * @param <C> Type de l'objet fils
@@ -15,7 +15,9 @@ import com.google.gwt.cell.client.HasCell;
 public class ChildCellColumn<P, C, V>
     implements HasCell<P, V>
 {
-    private C child;
+    private int childIndex;
+
+    private ChildGetter<P, C> childGetter;
 
     private Cell<V> cell;
 
@@ -23,17 +25,19 @@ public class ChildCellColumn<P, C, V>
 
     private ChildFieldUpdater<P, C, V> fieldUpdater;
 
-    public ChildCellColumn( C child, Cell<V> cell, ValueGetter<C, V> valueGetter )
+    public ChildCellColumn( int childIndex, ChildGetter<P, C> childGetter, Cell<V> cell, ValueGetter<C, V> valueGetter )
     {
-        this( child, cell, valueGetter, null );
+        this( childIndex, childGetter, cell, valueGetter, null );
     }
 
-    public ChildCellColumn( C child, Cell<V> cell, ValueGetter<C, V> valueGetter, FieldUpdater<C, V> fieldUpdater )
+    public ChildCellColumn( int childIndex, ChildGetter<P, C> childGetter, Cell<V> cell, ValueGetter<C, V> valueGetter,
+                            FieldUpdater<C, V> fieldUpdater )
     {
-        this.child = child;
+        this.childIndex = childIndex;
+        this.childGetter = childGetter;
         this.cell = cell;
         this.valueGetter = valueGetter;
-        this.fieldUpdater = new ChildFieldUpdater<P, C, V>( child, fieldUpdater );
+        this.fieldUpdater = new ChildFieldUpdater<P, C, V>( childIndex, childGetter, fieldUpdater );
     }
 
     @Override
@@ -56,7 +60,7 @@ public class ChildCellColumn<P, C, V>
     @Override
     public V getValue( P parent )
     {
-        return valueGetter.getValue( child );
+        return valueGetter.getValue( childGetter.getChild( parent, childIndex ) );
     }
 
 }
